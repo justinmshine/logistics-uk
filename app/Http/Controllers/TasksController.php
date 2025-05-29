@@ -24,14 +24,11 @@ class TasksController extends Controller
 
         $task = TasksModel::create($validated);
 
-        // Generate a secured URL token for edit/delete
-        $task->secure_token = Str::random(32);
-        $task->save();
 
         return response()->json([
             'task' => $task,
-            'edit_url' => route('tasks.edit', ['task' => $task->id, 'token' => $task->secure_token]),
-            'delete_url' => route('tasks.destroy', ['task' => $task->id, 'token' => $task->secure_token]),
+            'edit_url' => route('tasks.edit', ['task' => $task->id]),
+            'delete_url' => route('tasks.destroy', ['task' => $task->id]),
         ], 201);
     }
 
@@ -47,11 +44,6 @@ class TasksController extends Controller
     {
         $task = TasksModel::findOrFail($id);
 
-        // Check secure token
-        if ($request->query('token') !== $task->secure_token) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
         $validated = $request->validate([
             'name' => 'sometimes|required|string|min:3|max:100',
             'description' => 'sometimes|required|string|min:10|max:5000',
@@ -66,11 +58,6 @@ class TasksController extends Controller
     public function destroy(Request $request, $id)
     {
         $task = TasksModel::findOrFail($id);
-
-        // Check secure token
-        if ($request->query('token') !== $task->secure_token) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
 
         $task->delete();
 
