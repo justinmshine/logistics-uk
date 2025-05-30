@@ -24,12 +24,7 @@ class TasksController extends Controller
 
         $task = TasksModel::create($validated);
 
-
-        return response()->json([
-            'task' => $task,
-            'edit_url' => route('tasks.edit', ['task' => $task->id]),
-            'delete_url' => route('tasks.destroy', ['task' => $task->id]),
-        ], 201);
+        return response()->json($task);
     }
 
     // Show a single task
